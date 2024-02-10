@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #052735; /* Dark background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            background-color: #34495e; /* Darker container background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #ffffff; /* White heading */
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            background-color: #2980b9; /* Dark blue label background */
+            color: #ffffff; /* White label text */
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        label:hover {
+            background-color: #1e668d; /* Darker blue on hover */
+        }
+
+        button[type="submit"] {
+            background-color: #27ae60; /* Dark green button background */
+            color: #ffffff; /* White button text */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #imagePreview {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 2px solid #2c3e50; /* Darker border */
+            border-radius: 4px;
+        }
+
+        #result p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #ffffff; /* White text */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classification</h1>
+        <form action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" accept=".jpg, .jpeg, .png">
+            <label for="fileInput">Choose Image</label>
+            <button type="submit">Upload</button>
+        </form>
+        <img id="imagePreview" src="#" alt="Image Preview">
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.querySelector('#fileInput').addEventListener('change', function() {
+            // Clear previous result
+            document.getElementById('result').innerHTML = '';
+    
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.querySelector('#imagePreview').setAttribute('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', document.querySelector('input[type=file]').files[0]);
+            const response = await fetch('/predict', { method: 'POST', body: formData });
+            const data = await response.json();
+            document.getElementById('result').innerHTML = `<p>Predicted Class: ${data.predicted_class}</p><p>Biodegradability: ${data.biodegradability}</p>`;
+        });
+    </script>    
+</body>
+</html>
